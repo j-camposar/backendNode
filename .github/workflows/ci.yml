@@ -1,0 +1,32 @@
+name: Build, Push Docker and Deploy to EC2
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  DOCKERHUB_USERNAME: jocamposar #usuario DockerHub
+  DOCKERHUB_REPO: metricas     #repo DockerHub
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1️⃣ Obtener código
+    - name: Checkout repo
+      uses: actions/checkout@v4
+
+    # 2️⃣ Loguear en Docker Hub
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+
+    # 3️⃣ Construir y subir imagen Docker
+    - name: Build and push Docker image
+      run: |
+        docker build -t $DOCKERHUB_USERNAME/$DOCKERHUB_REPO:latest ./app
+        docker push $DOCKERHUB_USERNAME/$DOCKERHUB_REPO:latest
